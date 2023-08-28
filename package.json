@@ -1,0 +1,20 @@
+{
+  "name": "haunted-house-three-js",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@types/three": "^0.155.1",
+    "typescript": "^5.0.2",
+    "vite": "^4.4.5"
+  },
+  "dependencies": {
+    "lil-gui": "^0.18.2",
+    "three": "^0.155.0"
+  }
+}
