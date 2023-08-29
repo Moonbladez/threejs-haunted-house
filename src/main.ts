@@ -66,20 +66,21 @@ scene.add(floor);
 const graves = new THREE.Group();
 const graveGeometry = new THREE.BoxGeometry(0.6, 0.8, 0.2);
 const graveMaterial = new THREE.MeshStandardMaterial({ color: "#b2b6b1" });
+
 const createGrave = (x: number, z: number): THREE.Mesh => {
   const grave = new THREE.Mesh(graveGeometry, graveMaterial);
 
   grave.position.set(x, 0.3, z);
 
   grave.rotation.z = (Math.random() - 0.5) * 0.4;
-  grave.rotation.y = (Math.random() - 0.5) * 0.4;
+  grave.rotation.y = (Math.random() - 0.5) * 0.6;
 
   return grave;
 };
 
 for (let i = 0; i < 25; i++) {
   const angle = Math.random() * Math.PI * 2;
-  const radius = 3 + Math.random() * 6;
+  const radius = 3.5 + Math.random() * 6;
   const x = Math.cos(angle) * radius;
   const z = Math.sin(angle) * radius;
 
@@ -88,11 +89,17 @@ for (let i = 0; i < 25; i++) {
 }
 scene.add(graves);
 
-const ambientLight = new THREE.AmbientLight("#ffffff", 0.5);
+//lights
+const ambientLight = new THREE.AmbientLight("#b9d5ff", 0.12);
 scene.add(ambientLight);
 
-const moonLight = new THREE.DirectionalLight("#ffffff", 0.5);
+const moonLight = new THREE.DirectionalLight("#b9d5ff", 0.12);
 moonLight.position.set(4, 5, -2);
+scene.add(moonLight);
+
+const doorLight = new THREE.PointLight("#ff7d46", 1, 7);
+doorLight.position.set(0, 2.2, 2.7);
+house.add(doorLight);
 
 const createLightControls = (light: THREE.Light, gui: GUI) => {
   gui.add(light, "intensity").min(0).max(1).step(0.001);
@@ -106,7 +113,7 @@ const createLightControls = (light: THREE.Light, gui: GUI) => {
 const lightFolder = gui.addFolder("Lights");
 createLightControls(ambientLight, lightFolder.addFolder("Ambient Light"));
 createLightControls(moonLight, lightFolder.addFolder("Moon Light"));
-scene.add(moonLight);
+createLightControls(doorLight, lightFolder.addFolder("Door Light"));
 
 const sizes = {
   width: window.innerWidth,
