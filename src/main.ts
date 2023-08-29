@@ -10,6 +10,9 @@ const canvas = document.querySelector("canvas") as HTMLCanvasElement;
 
 const scene = new THREE.Scene();
 
+const fog = new THREE.Fog("#262837", 1, 15);
+scene.fog = fog;
+
 const textureLoader = new THREE.TextureLoader();
 
 //Objects
@@ -144,6 +147,7 @@ const renderer = new THREE.WebGLRenderer({
   canvas: canvas,
 });
 renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
+renderer.setClearColor("#262837");
 renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
