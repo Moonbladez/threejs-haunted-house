@@ -5,8 +5,9 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 THREE.ColorManagement.enabled = false;
 
 const gui = new GUI();
-
 const canvas = document.querySelector("canvas") as HTMLCanvasElement;
+
+const graveNumber = 25;
 
 const scene = new THREE.Scene();
 
@@ -34,20 +35,17 @@ const grassAmbientOcclusionTexture = textureLoader.load("/textures/grass/ambient
 const grassNormalTexture = textureLoader.load("/textures/grass/normal.jpg");
 const grassRoughnessTexture = textureLoader.load("/textures/grass/roughness.jpg");
 
-grassColorTexture.repeat.set(8, 8);
-grassAmbientOcclusionTexture.repeat.set(8, 8);
-grassNormalTexture.repeat.set(8, 8);
-grassRoughnessTexture.repeat.set(8, 8);
-
-grassColorTexture.wrapS = THREE.RepeatWrapping;
-grassAmbientOcclusionTexture.wrapS = THREE.RepeatWrapping;
-grassNormalTexture.wrapS = THREE.RepeatWrapping;
-grassRoughnessTexture.wrapS = THREE.RepeatWrapping;
-
-grassColorTexture.wrapT = THREE.RepeatWrapping;
-grassAmbientOcclusionTexture.wrapT = THREE.RepeatWrapping;
-grassNormalTexture.wrapT = THREE.RepeatWrapping;
-grassRoughnessTexture.wrapT = THREE.RepeatWrapping;
+const grassTextures: THREE.Texture[] = [
+  grassColorTexture,
+  grassAmbientOcclusionTexture,
+  grassNormalTexture,
+  grassRoughnessTexture,
+];
+grassTextures.forEach((texture: THREE.Texture) => {
+  texture.repeat.set(8, 8);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+});
 
 //Objects
 const house = new THREE.Group();
@@ -144,7 +142,7 @@ const createGrave = (x: number, z: number): THREE.Mesh => {
   return grave;
 };
 
-for (let i = 0; i < 25; i++) {
+for (let i = 0; i < graveNumber; i++) {
   const angle = Math.random() * Math.PI * 2;
   const radius = 3.5 + Math.random() * 6;
   const x = Math.cos(angle) * radius;
@@ -181,6 +179,35 @@ createLightControls(ambientLight, lightFolder.addFolder("Ambient Light"));
 createLightControls(moonLight, lightFolder.addFolder("Moon Light"));
 createLightControls(doorLight, lightFolder.addFolder("Door Light"));
 
+// Ghosts
+const gostsGroup = new THREE.Group();
+scene.add(gostsGroup);
+
+const ghostLights: THREE.PointLight[] = [];
+
+const createGhostLight = (color: string, intensity: number, distance: number) => {
+  const ghostLight = new THREE.PointLight(color, intensity, distance);
+  ghostLights.push(ghostLight);
+  gostsGroup.add(ghostLight);
+
+  return ghostLight;
+};
+const ghost1 = createGhostLight("#ff00ff", 2, 3);
+const ghost2 = createGhostLight("#00ffff", 2, 3);
+const ghost3 = createGhostLight("#ffff00", 2, 3);
+
+const updateGhostPosition = (
+  ghost: THREE.PointLight,
+  angleModifier: number,
+  radiusModifier: number,
+  yModifier: number
+): void => {
+  const elapsedTime = clock.getElapsedTime();
+  const angle = elapsedTime * angleModifier;
+  ghost.position.x = Math.cos(angle) * radiusModifier;
+  ghost.position.z = Math.sin(angle) * radiusModifier;
+  ghost.position.y = Math.sin(elapsedTime * yModifier);
+};
 const sizes = {
   width: window.innerWidth,
   height: window.innerHeight,
@@ -220,8 +247,12 @@ const tick = () => {
   const elapsedTime = clock.getElapsedTime();
 
   controls.update();
-
   renderer.render(scene, camera);
+
+  // Ghosts
+  updateGhostPosition(ghost1, 0.2, 4, 2);
+  updateGhostPosition(ghost2, -0.1, 6, 3);
+  updateGhostPosition(ghost3, 0.2, 8 + Math.sin(elapsedTime * 0.32), 4);
 
   window.requestAnimationFrame(tick);
 };
