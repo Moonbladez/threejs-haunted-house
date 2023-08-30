@@ -62,6 +62,8 @@ const walls = new THREE.Mesh(
   })
 );
 walls.position.y = 1.25;
+walls.castShadow = true;
+walls.receiveShadow = true;
 house.add(walls);
 
 /// Roof
@@ -104,6 +106,7 @@ const createBush = (
   const bush = new THREE.Mesh(bushGeometry, bushMaterial);
   bush.scale.set(scaleX, scaleY, scaleZ);
   bush.position.set(positionX, positionY, positionZ);
+  bush.castShadow = true;
   house.add(bush);
 };
 
@@ -125,6 +128,7 @@ const floor = new THREE.Mesh(
 floor.rotation.x = -Math.PI * 0.5;
 floor.position.y = 0;
 scene.add(floor);
+floor.receiveShadow = true;
 
 // Graves
 const graves = new THREE.Group();
@@ -138,6 +142,7 @@ const createGrave = (x: number, z: number): THREE.Mesh => {
 
   grave.rotation.z = (Math.random() - 0.5) * 0.4;
   grave.rotation.y = (Math.random() - 0.5) * 0.6;
+  grave.castShadow = true;
 
   return grave;
 };
@@ -159,10 +164,18 @@ scene.add(ambientLight);
 
 const moonLight = new THREE.DirectionalLight("#b9d5ff", 0.12);
 moonLight.position.set(4, 5, -2);
+moonLight.castShadow = true;
+moonLight.shadow.mapSize.width = 256;
+moonLight.shadow.mapSize.height = 256;
+moonLight.shadow.camera.far = 15;
 scene.add(moonLight);
 
 const doorLight = new THREE.PointLight("#ff7d46", 1, 7);
 doorLight.position.set(0, 2.2, 2.7);
+doorLight.castShadow = true;
+doorLight.shadow.mapSize.width = 256;
+doorLight.shadow.mapSize.height = 256;
+doorLight.shadow.camera.far = 7;
 house.add(doorLight);
 
 const createLightControls = (light: THREE.Light, gui: GUI) => {
@@ -180,21 +193,21 @@ createLightControls(moonLight, lightFolder.addFolder("Moon Light"));
 createLightControls(doorLight, lightFolder.addFolder("Door Light"));
 
 // Ghosts
-const gostsGroup = new THREE.Group();
-scene.add(gostsGroup);
+const ghostsGroup = new THREE.Group();
+scene.add(ghostsGroup);
 
-const ghostLights: THREE.PointLight[] = [];
-
-const createGhostLight = (color: string, intensity: number, distance: number) => {
+const createGhostLight = (color: number, intensity: number, distance: number): THREE.PointLight => {
   const ghostLight = new THREE.PointLight(color, intensity, distance);
-  ghostLights.push(ghostLight);
-  gostsGroup.add(ghostLight);
-
+  ghostLight.castShadow = true;
+  ghostLight.shadow.mapSize.width = 256;
+  ghostLight.shadow.mapSize.height = 256;
+  ghostLight.shadow.camera.far = 7;
+  ghostsGroup.add(ghostLight);
   return ghostLight;
 };
-const ghost1 = createGhostLight("#ff00ff", 2, 3);
-const ghost2 = createGhostLight("#00ffff", 2, 3);
-const ghost3 = createGhostLight("#ffff00", 2, 3);
+const ghost1 = createGhostLight(0xadd8e6, 1, 3);
+const ghost2 = createGhostLight(0xa4d3e5, 3, 3);
+const ghost3 = createGhostLight(0x40e0d0, 2, 3);
 
 const updateGhostPosition = (
   ghost: THREE.PointLight,
@@ -203,11 +216,15 @@ const updateGhostPosition = (
   yModifier: number
 ): void => {
   const elapsedTime = clock.getElapsedTime();
+
+  //randomize angle
   const angle = elapsedTime * angleModifier;
+
   ghost.position.x = Math.cos(angle) * radiusModifier;
   ghost.position.z = Math.sin(angle) * radiusModifier;
   ghost.position.y = Math.sin(elapsedTime * yModifier);
 };
+
 const sizes = {
   width: window.innerWidth,
   height: window.innerHeight,
@@ -240,6 +257,7 @@ renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
 renderer.setClearColor("#262837");
 renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
 
 const clock = new THREE.Clock();
 
