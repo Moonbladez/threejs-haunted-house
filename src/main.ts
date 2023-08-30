@@ -5,6 +5,8 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 THREE.ColorManagement.enabled = false;
 
 const gui = new GUI();
+//auto close gui
+gui._closeFolders = true;
 const canvas = document.querySelector("canvas") as HTMLCanvasElement;
 
 const graveNumber = 25;
